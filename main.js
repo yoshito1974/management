@@ -62,4 +62,24 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
     lender: document.getElementById("lender").value,
     borrower: document.getElementById("borrower").value,
     item: document.getElementById("item").value,
-    amount: document.getElementById("amount").value.re
+    amount: document.getElementById("amount").value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248)),
+    category: document.getElementById("category").value,
+    userId: document.getElementById("userId").value,
+    displayName: document.getElementById("displayName").value
+  };
+
+  fetch("YOUR_GAS_WEBAPP_URL", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  alert("送信されました。");
+  document.getElementById("loanForm").reset();
+  if (liff.isInClient()) {
+    liff.closeWindow();
+  }
+});
