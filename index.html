@@ -3,86 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <title>貸借管理フォーム</title>
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("form");
+
+      // 全角→半角変換（数字のみ）
+      function toHalfWidth(str) {
+        return str.replace(/[０-９]/g, function(s) {
+          return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+      }
+
+      // LIFF初期化
+      liff.init({
+        liffId: "2007681083-EwJbXNRl"  // ←あなたのLIFF IDに置き換えてください
+      }).then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        } else {
+          liff.getProfile().then(profile => {
+            // ユーザー名を自動的に borrower に設定
+            const borrowerSelect = document.getElementById("borrower");
+            borrowerSelect.innerHTML = `<option value="${profile.displayName}" selected>${profile.displayName}</option>`;
+          });
+        }
+      });
+
+      // フォーム送信処理
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const data = {
+          date: document.getElementById("date").value,
+          store: document.getElementById("store").value,
+          lender: document.getElementById("lender").value,
+          borrower: document.getElementById("borrower").value,
+          item: document.getElementById("item").value,
+          price: toHalfWidth(document.getElementById("price").value)
+        };
+
+        fetch("https://script.google.com/macros/s/1RmmYz4R7QlJz_wG8dkFZzPBTiSLagr8u04O5pTxK4j8/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        alert("送信しました！");
+        form.reset();
+        if (liff) liff.closeWindow(); // LIFFミニアプリなら閉じる
+      });
+    });
+  </script>
 </head>
 <body>
   <h2>貸借管理フォーム</h2>
   <form id="form">
-    <label for="date">日付:</label>
+    <label for="date">日付：</label>
     <input type="date" id="date" required><br><br>
 
-    <label for="store">名前:</label>
+    <label for="store">名前：</label>
     <input type="text" id="store" required><br><br>
 
-    <label for="lender">貸主:</label>
-    <select id="lender" required></select><br><br>
+    <label for="lender">貸主：</label>
+    <select id="lender" required>
+      <option value="">選択してください</option>
+      <option value="山田">山田</option>
+      <option value="佐藤">佐藤</option>
+    </select><br><br>
 
-    <label for="borrower">借主:</label>
-    <select id="borrower" required></select><br><br>
+    <label for="borrower">借主：</label>
+    <select id="borrower" required>
+      <option value="">ログイン中...</option>
+    </select><br><br>
 
-    <label for="item">品目:</label>
+    <label for="item">品目：</label>
     <input type="text" id="item" required><br><br>
 
-    <label for="price">金額（円）:</label>
+    <label for="price">金額（円）：</label>
     <input type="number" id="price" required><br><br>
 
     <button type="submit">送信</button>
   </form>
-
-  <!-- LINE LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
-  <!-- 店舗名のプルダウン自動生成スクリプト -->
-  <script>
-    const shops = [
-      "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
-      "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
-      "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
-      "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric’S",
-      "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
-      "X&C", "トラットリア ブリッコラ"
-    ];
-
-    function populateSelect(id) {
-      const select = document.getElementById(id);
-      select.innerHTML = '<option value="">選択してください</option>';
-      shops.forEach(name => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.text = name;
-        select.appendChild(option);
-      });
-    }
-
-    window.onload = function () {
-      populateSelect("lender");
-      populateSelect("borrower");
-    };
-  </script>
-
-  <!-- フォーム送信処理 -->
-  <script>
-    document.getElementById("form").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const data = {
-        date: document.getElementById("date").value,
-        store: document.getElementById("store").value,
-        lender: document.getElementById("lender").value,
-        borrower: document.getElementById("borrower").value,
-        item: document.getElementById("item").value,
-        price: document.getElementById("price").value,
-      };
-
-      fetch("https://script.google.com/macros/s/あなたのGASデプロイURL/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      alert("送信しました！");
-      this.reset();
-    });
-  </script>
 </body>
 </html>
