@@ -1,10 +1,8 @@
-(async () => {
-  await liff.init({ liffId: "2007681083-EwJbXNRI" });
-
+document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("form");
 
-  form.addEventListener("submit", async e => {
-    e.preventDefault();
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
 
     const data = {
       date: document.getElementById("date").value,
@@ -12,21 +10,22 @@
       lender: document.getElementById("lender").value,
       borrower: document.getElementById("borrower").value,
       item: document.getElementById("item").value,
-      price: document.getElementById("price").value
+      price: document.getElementById("price").value,
     };
 
-    try {
-      await fetch("https://script.google.com/macros/s/AKfycbw9ScrkV7xuZGWdxL9UF1Ylioomzu6vG1WZw6poe1_TWE_31_YZJUCrizscOT4AOt4w/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+    // Google Apps Script の Web App URL に置き換えてください
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/あなたのGASデプロイURL/exec";
 
-      alert("送信が完了しました！");
-      liff.closeWindow();
-    } catch (error) {
-      console.error("送信エラー:", error);
-      alert("送信に失敗しました。もう一度お試しください。");
-    }
+    fetch(GAS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors", // レスポンスを使わない前提
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    alert("送信しました！");
+    form.reset(); // 送信後、フォームを初期化
   });
-})();
+});
