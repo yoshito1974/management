@@ -1,6 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("form");
 
+  // 全角→半角変換（数字のみ）
+  function toHalfWidth(str) {
+    return str.replace(/[０-９]/g, function(s) {
+      return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+    });
+  }
+
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -10,15 +17,12 @@ document.addEventListener("DOMContentLoaded", function () {
       lender: document.getElementById("lender").value,
       borrower: document.getElementById("borrower").value,
       item: document.getElementById("item").value,
-      price: document.getElementById("price").value,
+      price: toHalfWidth(document.getElementById("price").value),
     };
 
-    // Google Apps Script の Web App URL に置き換えてください
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/あなたのGASデプロイURL/exec";
-
-    fetch(GAS_ENDPOINT, {
+    fetch("https://script.google.com/macros/s/あなたのGASデプロイURL/exec", {
       method: "POST",
-      mode: "no-cors", // レスポンスを使わない前提
+      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
@@ -26,6 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     alert("送信しました！");
-    form.reset(); // 送信後、フォームを初期化
+    form.reset();
   });
 });
