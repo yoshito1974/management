@@ -1,5 +1,5 @@
 (async () => {
-  await liff.init({ liffId: "YOUR_LIFF_ID" });
+  await liff.init({ liffId: "2007681083-EwJbXNRl" });
   const form = document.getElementById("form");
   form.addEventListener("submit", async e => {
     e.preventDefault();
