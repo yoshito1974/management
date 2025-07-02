@@ -1,61 +1,47 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>貸借管理フォーム</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script defer src="main.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background-color: #f8f8f8;
-    }
-    label {
-      display: block;
-      margin-top: 12px;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-    }
-    button {
-      margin-top: 16px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-  </style>
 </head>
 <body>
-  <h2>貸借管理フォーム</h2>
+  <h1>貸借管理フォーム</h1>
   <form id="form">
-    <label for="date">日付</label>
-    <input type="date" id="date" required>
+    <label for="date">日付:</label>
+    <input type="date" id="date" name="date" required><br><br>
 
-    <label for="store">相手先</label>
-    <select id="store" required>
-      <option value="">選択してください</option>
-      <option value="業者A">業者A</option>
-      <option value="業者B">業者B</option>
-      <option value="業者C">業者C</option>
-    </select>
+    <label for="store">場所・用途:</label>
+    <select id="store" name="store">
+      <option value="店A">店A</option>
+      <option value="店B">店B</option>
+      <option value="その他">その他</option>
+    </select><br><br>
 
-    <label for="person">記録者</label>
-    <select id="person" required>
-      <option value="">選択してください</option>
-      <option value="佐藤">佐藤</option>
+    <label for="lender">貸主:</label>
+    <select id="lender" name="lender">
       <option value="田中">田中</option>
-      <option value="山本">山本</option>
-    </select>
+      <option value="佐藤">佐藤</option>
+      <option value="鈴木">鈴木</option>
+    </select><br><br>
 
-    <label for="item">内容</label>
-    <input type="text" id="item" placeholder="例：立替交通費" required>
+    <label for="borrower">借主:</label>
+    <select id="borrower" name="borrower">
+      <option value="田中">田中</option>
+      <option value="佐藤">佐藤</option>
+      <option value="鈴木">鈴木</option>
+    </select><br><br>
 
-    <label for="price">金額（円）</label>
-    <input type="number" id="price" required>
+    <label for="item">項目:</label>
+    <input type="text" id="item" name="item" required><br><br>
+
+    <label for="price">金額:</label>
+    <input type="number" id="price" name="price" required><br><br>
 
     <button type="submit">送信</button>
   </form>
+
+  <script src="main.js"></script>
 </body>
 </html>
