@@ -83,7 +83,7 @@
     let displayName = "";
 
     async function initLiff() {
-      await liff.init({ liffId: "YOUR_LIFF_ID" });
+      await liff.init({ liffId: "2007681083-EwJbXNRl" });
       if (!liff.isLoggedIn()) {
         liff.login();
       } else {
@@ -117,7 +117,7 @@
         displayName
       };
 
-      fetch("YOUR_GAS_WEBAPP_URL", {
+      fetch("AKfycbw-AfO8hWNAR9LH1cnf9g7L8tNuQUPHjzEglKSbERW7J8gaWWlYsD0VB8NquBeARVri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
