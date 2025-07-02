@@ -1,5 +1,5 @@
 (async () => {
-  await liff.init({ liffId: "2007681083-EwJbXNRI" }); // あなたのLIFF IDに書き換えてください
+  await liff.init({ liffId: "2007681083-EwJbXNRI" });
 
   const form = document.getElementById("form");
 
