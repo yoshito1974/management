@@ -29,7 +29,7 @@ const categorySelect = document.getElementById("category");
 });
 
 async function initLiff() {
-  await liff.init({ liffId: "YOUR_LIFF_ID" });
+  await liff.init({ liffId: "2007681083-EwJbXNRl" });
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
@@ -68,7 +68,7 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
     displayName: document.getElementById("displayName").value
   };
 
-  fetch("YOUR_GAS_WEBAPP_URL", {
+  fetch("AKfycbwPGqn_ov2o0JOnmvBZOxW5aPcs7x7rZn0hlFhJuV40vvA6emXxHCBZr74BfTK4ZD8s", {
     method: "POST",
     mode: "no-cors",
     headers: {
