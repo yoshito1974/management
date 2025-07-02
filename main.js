@@ -1,6 +1,6 @@
 (async () => {
-  // LIFFの初期化（あなたの LIFF ID に置き換えてください）
-  await liff.init({ liffId: "2007681083-EwJbXNRl" });
+  
+  await liff.init({ liffId: "2007681083-EwJbXNRI" });
 
   const form = document.getElementById("form");
 
@@ -17,15 +17,17 @@
     };
 
     try {
-      // GAS Web Apps にPOST送信（ここにあなたのGASのURLを貼る）
-      await fetch("https://script.google.com/macros/s/【あなたのGAS_URL】/exec", {
+     
+      await fetch("https://script.google.com/macros/s/AKfycbw9ScrkV7xuZGWdxL9UF1Ylioomzu6vG1WZw6poe1_TWE_31_YZJUCrizscOT4AOt4w/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(data)
       });
 
       alert("送信が完了しました！");
-      liff.closeWindow(); // LINE内ブラウザを自動で閉じる
+      liff.closeWindow(); 
     } catch (error) {
       console.error("送信エラー:", error);
       alert("送信に失敗しました。もう一度お試しください。");
