@@ -1,47 +1,94 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>貸借管理フォーム</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h1>貸借管理フォーム</h1>
+  <h2>貸借管理フォーム</h2>
   <form id="form">
     <label for="date">日付:</label>
-    <input type="date" id="date" name="date" required><br><br>
+    <input type="date" id="date" required><br><br>
 
-    <label for="store">場所・用途:</label>
-    <select id="store" name="store">
-      <option value="店A">店A</option>
-      <option value="店B">店B</option>
-      <option value="その他">その他</option>
-    </select><br><br>
+    <label for="store">店名:</label>
+    <select id="store" required></select><br><br>
 
     <label for="lender">貸主:</label>
-    <select id="lender" name="lender">
-      <option value="田中">田中</option>
-      <option value="佐藤">佐藤</option>
-      <option value="鈴木">鈴木</option>
-    </select><br><br>
+    <select id="lender" required></select><br><br>
 
     <label for="borrower">借主:</label>
-    <select id="borrower" name="borrower">
-      <option value="田中">田中</option>
-      <option value="佐藤">佐藤</option>
-      <option value="鈴木">鈴木</option>
+    <select id="borrower" required></select><br><br>
+
+    <label for="item">品目:</label>
+    <input type="text" id="item" required><br><br>
+
+    <label for="price">金額（円）:</label>
+    <select id="price" required>
+      <option value="">選択してください</option>
+      <option value="1000">1,000</option>
+      <option value="2000">2,000</option>
+      <option value="5000">5,000</option>
+      <option value="10000">10,000</option>
     </select><br><br>
-
-    <label for="item">項目:</label>
-    <input type="text" id="item" name="item" required><br><br>
-
-    <label for="price">金額:</label>
-    <input type="number" id="price" name="price" required><br><br>
 
     <button type="submit">送信</button>
   </form>
 
-  <script src="main.js"></script>
+  <!-- LINE LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <!-- 店舗名のプルダウン自動生成スクリプト -->
+  <script>
+    const shops = [
+      "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
+      "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
+      "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
+      "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric’S",
+      "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
+      "X&C", "トラットリア ブリッコラ"
+    ];
+
+    function populateSelect(id) {
+      const select = document.getElementById(id);
+      select.innerHTML = '<option value="">選択してください</option>';
+      shops.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.text = name;
+        select.appendChild(option);
+      });
+    }
+
+    window.onload = function () {
+      populateSelect("store");
+      populateSelect("lender");
+      populateSelect("borrower");
+    };
+  </script>
+
+  <!-- フォーム送信処理 (main.js として分離してもOK) -->
+  <script>
+    document.getElementById("form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        date: document.getElementById("date").value,
+        store: document.getElementById("store").value,
+        lender: document.getElementById("lender").value,
+        borrower: document.getElementById("borrower").value,
+        item: document.getElementById("item").value,
+        price: document.getElementById("price").value,
+      };
+
+      fetch("https://script.google.com/macros/s/あなたのGASデプロイURL/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      alert("送信しました！");
+    });
+  </script>
 </body>
 </html>
