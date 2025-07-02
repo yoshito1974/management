@@ -69,14 +69,33 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
   };
 
   fetch("https://script.google.com/macros/s/AKfycbxct5uNnMcYdvOCUWi4tzr1Kz5H3JoGJXmch8-IlzyBIXPJ57aVJtRThMgyDHi0KhdT/exec", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    date: document.getElementById("date").value,
+    name: document.getElementById("name").value,
+    lender: document.getElementById("lender").value,
+    borrower: document.getElementById("borrower").value,
+    category: document.getElementById("category").value,
+    item: document.getElementById("item").value,
+    amount: document.getElementById("amount").value,
+    
+    displayName: displayName,
+    userId: userId
+  })
+})
+.then(response => response.text())
+.then(result => {
+  console.log("Success:", result);
+  alert("登録が完了しました");
+})
+.catch(error => {
+  console.error("Error:", error);
+  alert("エラーが発生しました");
+});
 
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
 
   alert("送信されました。");
   document.getElementById("loanForm").reset();
