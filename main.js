@@ -68,7 +68,8 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
     displayName: document.getElementById("displayName").value
   };
 
-  fetch("AKfycbw-AfO8hWNAR9LH1cnf9g7L8tNuQUPHjzEglKSbERW7J8gaWWlYsD0VB8NquBeARVri", {
+  fetch("https://script.google.com/macros/s/AKfycbxOWoj9GhMURpnvyImOrZUGkEyfsoWmZNh4HvofdE9VSDAnmQ_ISWUv9kgkUWwXigRO/exec", {
+
     method: "POST",
     mode: "no-cors",
     headers: {
