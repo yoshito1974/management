@@ -1,50 +1,105 @@
-<!-- index.html 完全版 -->
 <!DOCTYPE html>
 <html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>貸借管理フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="UTF-8" />
+  <title>貸借記録フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    label { display: block; margin-top: 10px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
     input, select, button {
-      width: 100%; padding: 8px; margin-top: 5px; font-size: 16px;
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+    body { font-family: sans-serif; padding: 20px; }
+    label { display: block; margin-top: 12px; }
+    select, input, button {
+      font-size: 16px; padding: 8px; width: 100%; margin-top: 4px;
     }
     button { margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>貸借管理フォーム</h1>
+  <h2>貸借管理フォーム</h2>
   <form id="loanForm">
-    <label for="date">日付：</label>
+    <label for="date">日付</label>
     <input type="date" id="date" required>
 
-    <label for="name">名前：</label>
+    <label for="name">名前</label>
     <input type="text" id="name" required>
 
-    <label for="lender">貸主：</label>
+    <label for="lender">貸主</label>
     <select id="lender" required></select>
 
-    <label for="borrower">借主：</label>
+    <label for="borrower">借主</label>
     <select id="borrower" required></select>
 
-    <label for="category">カテゴリー：</label>
+    <label for="category">カテゴリー</label>
     <select id="category" required>
       <option value="食材">食材</option>
       <option value="飲料">飲料</option>
       <option value="その他">その他</option>
     </select>
 
-    <label for="item">品目：</label>
+    <label for="item">品目</label>
     <input type="text" id="item" required>
 
-    <label for="amount">金額：</label>
+    <label for="amount">金額</label>
     <input type="text" id="amount" required pattern="[0-9０-９]+" inputmode="numeric">
+  <h2>貸借記録フォーム</h2>
+  <form id="recordForm">
+    <label>日付:
+      <input type="date" name="date" required>
+    </label>
+
+    <label>名前:
+      <input type="text" name="name" required>
+    </label>
+
+    <label>貸主:
+      <select name="lender" required></select>
+    </label>
+
+    <label>借主:
+      <select name="borrower" required></select>
+    </label>
+
+    <label>カテゴリー:
+      <select name="category" required>
+        <option value="">選択してください</option>
+        <option value="食材">食材</option>
+        <option value="飲料">飲料</option>
+        <option value="その他">その他</option>
+      </select>
+    </label>
+
+    <label>品目:
+      <input type="text" name="item" required>
+    </label>
+
+    <label>金額:
+      <input type="number" name="amount" required>
+    </label>
 
     <button type="submit">送信</button>
   </form>
+
+  <div id="result" style="margin-top: 24px;"></div>
 
   <script src="main.js"></script>
 </body>
