@@ -1,105 +1,70 @@
-const shops = [
-  "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
-  "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
-  "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
-  "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric’S",
-  "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
-  "X&C", "トラットリア ブリッコラ"
-];
+document.addEventListener("DOMContentLoaded", async () => {
+  const shops = [
+    "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
+    "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
+    "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
+    "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric’S",
+    "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
+    "X&C", "トラットリア ブリッコラ"
+  ];
 
-function populateSelect(id) {
-  const select = document.getElementById(id);
-  shops.forEach(shop => {
-    const option = document.createElement("option");
-    option.value = shop;
-    option.textContent = shop;
-    select.appendChild(option);
-  });
-}
+  const categories = ["食材", "飲料", "その他"];
 
-populateSelect("lender");
-populateSelect("borrower");
+  function populateSelect(id, options) {
+    const select = document.getElementById(id);
+    options.forEach(option => {
+      const opt = document.createElement("option");
+      opt.value = option;
+      opt.textContent = option;
+      select.appendChild(opt);
+    });
+  }
 
-const categorySelect = document.getElementById("category");
-["食材", "飲料", "その他"].forEach(c => {
-  const option = document.createElement("option");
-  option.value = c;
-  option.textContent = c;
-  categorySelect.appendChild(option);
-});
+  populateSelect("lender", shops);
+  populateSelect("borrower", shops);
+  populateSelect("category", categories);
 
-async function initLiff() {
-  await liff.init({ liffId: "2007681083-EwJbXNRl" });
+  // LIFF 初期化
+  await liff.init({ liffId: "あなたのLIFF ID" });
+
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
     const profile = await liff.getProfile();
-    const displayName = profile.displayName;
-    const userId = profile.userId;
+    document.getElementById("name").value = profile.displayName;
+  }
 
-    // displayNameが含まれているショップ名にセット
-    const borrowerSelect = document.getElementById("borrower");
-    for (let option of borrowerSelect.options) {
-      if (option.value.includes(displayName)) {
-        borrowerSelect.value = option.value;
-        break;
-      }
+  // フォーム送信処理
+  document.getElementById("loanForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      date: document.getElementById("date").value,
+      name: document.getElementById("name").value,
+      lender: document.getElementById("lender").value,
+      borrower: document.getElementById("borrower").value,
+      category: document.getElementById("category").value,
+      item: document.getElementById("item").value,
+      amount: document.getElementById("amount").value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248)) // 全角→半角
+    };
+
+    await fetch("あなたのGAS Web AppのURL", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    alert("送信が完了しました。");
+
+    // フォームをリセット
+    document.getElementById("loanForm").reset();
+
+    // LINEアプリ内であれば閉じる
+    if (liff.isInClient()) {
+      liff.closeWindow();
     }
-
-    // 隠し要素にセット（GAS送信用）
-    document.getElementById("userId").value = userId;
-    document.getElementById("displayName").value = displayName;
-  }
-}
-initLiff();
-
-document.getElementById("loanForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const data = {
-    date: document.getElementById("date").value,
-    name: document.getElementById("name").value,
-    lender: document.getElementById("lender").value,
-    borrower: document.getElementById("borrower").value,
-    item: document.getElementById("item").value,
-    amount: document.getElementById("amount").value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248)),
-    category: document.getElementById("category").value,
-    userId: document.getElementById("userId").value,
-    displayName: document.getElementById("displayName").value
-  };
-
-  fetch("https://script.google.com/macros/s/AKfycbxct5uNnMcYdvOCUWi4tzr1Kz5H3JoGJXmch8-IlzyBIXPJ57aVJtRThMgyDHi0KhdT/exec", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    date: document.getElementById("date").value,
-    name: document.getElementById("name").value,
-    lender: document.getElementById("lender").value,
-    borrower: document.getElementById("borrower").value,
-    category: document.getElementById("category").value,
-    item: document.getElementById("item").value,
-    amount: document.getElementById("amount").value,
-    
-    displayName: displayName,
-    userId: userId
-  })
-})
-.then(response => response.text())
-.then(result => {
-  console.log("Success:", result);
-  alert("登録が完了しました");
-})
-.catch(error => {
-  console.error("Error:", error);
-  alert("エラーが発生しました");
-});
-
-
-  alert("送信されました。");
-  document.getElementById("loanForm").reset();
-  if (liff.isInClient()) {
-    liff.closeWindow();
-  }
+  });
 });
