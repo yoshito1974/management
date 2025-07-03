@@ -3,9 +3,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyVakVT1XSQAiDX1Pic0F-G
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
   "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
-  "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
-  "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric’S",
-  "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
+@@ -9,84 +7,42 @@ const shops = [
   "X&C", "トラットリア ブリッコラ"
 ];
 
@@ -13,6 +11,8 @@ function populateShops() {
   const lenderSelect = document.getElementById("lender");
   const borrowerSelect = document.getElementById("borrower");
 
+function populateSelect(name) {
+  const select = document.querySelector(`select[name="${name}"]`);
   shops.forEach(shop => {
     const option1 = document.createElement("option");
     option1.value = shop;
@@ -23,6 +23,10 @@ function populateShops() {
     option2.value = shop;
     option2.textContent = shop;
     borrowerSelect.appendChild(option2);
+    const option = document.createElement("option");
+    option.value = shop;
+    option.textContent = shop;
+    select.appendChild(option);
   });
 }
 
@@ -30,7 +34,7 @@ populateShops();
 
 // LIFF初期化
 async function initLiff() {
-  await liff.init({ liffId: "【2007681083-EwJbXNRl】" });
+  await liff.init({ liffId: "【あなたのLIFF ID】" });
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
@@ -53,10 +57,16 @@ async function initLiff() {
 }
 
 initLiff();
+populateSelect("lender");
+populateSelect("borrower");
 
 // 送信処理
 document.getElementById("loanForm").addEventListener("submit", function (e) {
+document.getElementById("recordForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = {};
+  formData.forEach((value, key) => data[key] = value);
 
   const amountRaw = document.getElementById("amount").value;
   const normalizedAmount = amountRaw.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248));
@@ -74,12 +84,15 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
   };
 
   fetch(GAS_URL, {
+  const response = await fetch("https://script.google.com/macros/s/AKfycbyVakVT1XSQAiDX1Pic0F-GrkiiWeMSq_8e4XXseS-gDgVI5DaHehUlcxdI2mp_I9DU/exec", {
     method: "POST",
     mode: "no-cors",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
   });
 
   alert("送信されました。");
@@ -89,4 +102,17 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
   if (liff.isInClient()) {
     liff.closeWindow();
   }
+  document.getElementById("result").innerHTML = `
+    <p>送信が完了しました。</p>
+    <ul>
+      <li>日付: ${data.date}</li>
+      <li>名前: ${data.name}</li>
+      <li>貸主: ${data.lender}</li>
+      <li>借主: ${data.borrower}</li>
+      <li>カテゴリー: ${data.category}</li>
+      <li>品目: ${data.item}</li>
+      <li>金額: ${data.amount} 円</li>
+    </ul>
+  `;
+  e.target.reset();
 });
