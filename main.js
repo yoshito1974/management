@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateSelect("category", categories);
 
   // LIFF 初期化
-  await liff.init({ liffId: "あなたのLIFF ID" });
+  await liff.init({ liffId: "2007681083-EwJbXNRl" });
 
   if (!liff.isLoggedIn()) {
     liff.login();
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       amount: document.getElementById("amount").value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248)) // 全角→半角
     };
 
-    await fetch("あなたのGAS Web AppのURL", {
+    await fetch("https://script.google.com/macros/s/AKfycbyVakVT1XSQAiDX1Pic0F-GrkiiWeMSq_8e4XXseS-gDgVI5DaHehUlcxdI2mp_I9DU/exec", {
       method: "POST",
       mode: "no-cors",
       headers: {
