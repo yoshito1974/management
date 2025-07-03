@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/【あなたのGASのWebApp URL】/exec";  // ここはあなたのGASのURLに変更
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyVakVT1XSQAiDX1Pic0F-GrkiiWeMSq_8e4XXseS-gDgVI5DaHehUlcxdI2mp_I9DU/exec";  // ここはあなたのGASのURLに変更
 
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
