@@ -56,7 +56,7 @@ populateShops();
 
 // LIFF初期化
 async function initLiff() {
-  await liff.init({ liffId: "2007681083-EwJbXNRl" });
+  await liff.init({ liffId: "2007681083-B3Z2RkAv" });
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
