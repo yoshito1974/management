@@ -28,7 +28,7 @@ function populateShops() {
 populateShops();
 
 async function initLiff() {
-  await liff.init({ liffId: "あなたのLIFF ID" });
+  await liff.init({ liffId: "2007681083-B3Z2RkAv" });
 
   if (!liff.isLoggedIn()) {
     liff.login();
