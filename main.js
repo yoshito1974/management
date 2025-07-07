@@ -1,5 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxb2orh1nQDo_P_jb-UbfmbJ4hpenjfHwDqWNSLHqz_539lsWkQYZ-vvn40MVQX_YXf/exec"; // 最新のGAS URLに差し替え
-
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwx4ZPi9B6X6Jh4lhVyViISWKFLvO5IXSIrMdVB7D6iLqc6wOyHsKkVJ9gQwDsBs-y9/exec";
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
   "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
@@ -28,11 +27,39 @@ function populateShops() {
 
 populateShops();
 
+async function initLiff() {
+  await liff.init({ liffId: "あなたのLIFF ID" });
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+  window.userProfile = {
+    displayName: profile.displayName,
+    userId: profile.userId
+  };
+
+  // 自動補完
+  const borrowerSelect = document.getElementById("borrower");
+  for (let option of borrowerSelect.options) {
+    if (option.value.includes(profile.displayName)) {
+      borrowerSelect.value = option.value;
+      break;
+    }
+  }
+}
+
+initLiff();
+
 document.getElementById("loanForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const amountRaw = document.getElementById("amount").value;
   const normalizedAmount = amountRaw.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248));
+
+  const userAgent = navigator.userAgent;
 
   const data = {
     date: document.getElementById("date").value,
@@ -41,7 +68,10 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
     borrower: document.getElementById("borrower").value,
     category: document.getElementById("category").value,
     item: document.getElementById("item").value,
-    amount: normalizedAmount
+    amount: normalizedAmount,
+    displayName: window.userProfile?.displayName || "",
+    userId: window.userProfile?.userId || "",
+    userAgent: userAgent
   };
 
   fetch(GAS_URL, {
@@ -55,4 +85,5 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
 
   alert("送信されました。");
   document.getElementById("loanForm").reset();
+  if (liff.isInClient()) liff.closeWindow();
 });
