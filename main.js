@@ -22,7 +22,7 @@ function populateShops() {
 // LIFF初期化とユーザープロファイル取得（エラー表示付き）
 async function initLiff() {
   try {
-    await liff.init({ liffId: "2007681083-EwJbXNRI" });
+    await liff.init({ liffId: "2007681083-B3Z2RkAv" });
 
     if (!liff.isLoggedIn()) {
       liff.login(); // 初回はここで戻る
