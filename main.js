@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzpdqf9or6umCtLdcL_Q5glqiYFFOleOcLj0DdFF9fhpUDrYsPEYMpWKPsrTJqtFEt_/exec";  // ここはあなたのGASのURLに変更
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzpdqf9or6umCtLdcL_Q5glqiYFFOleOcLj0DdFF9fhpUDrYsPEYMpWKPsrTJqtFEt_/exec";  // あなたのGAS URL
 
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
@@ -9,28 +9,22 @@ const shops = [
   "X&C", "トラットリア ブリッコラ"
 ];
 
+// 店舗名をプルダウンにセット
 function populateShops() {
   const lenderSelect = document.getElementById("lender");
   const borrowerSelect = document.getElementById("borrower");
-
   shops.forEach(shop => {
-    const option1 = document.createElement("option");
-    option1.value = shop;
-    option1.textContent = shop;
-    lenderSelect.appendChild(option1);
-
-    const option2 = document.createElement("option");
-    option2.value = shop;
-    option2.textContent = shop;
-    borrowerSelect.appendChild(option2);
+    const option1 = new Option(shop, shop);
+    const option2 = new Option(shop, shop);
+    lenderSelect.add(option1);
+    borrowerSelect.add(option2);
   });
 }
 
-populateShops();
-
-// LIFF初期化
+// LIFF初期化とuserId取得（ここが重要）
 async function initLiff() {
-  await liff.init({ liffId: "2007681083-EwJbXNRl" });
+  await liff.init({ liffId: "2007681083-EwJbXNRI" }); // あなたのLIFF ID
+
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
@@ -38,10 +32,15 @@ async function initLiff() {
     const displayName = profile.displayName;
     const userId = profile.userId;
 
-    // フォーム送信時に一緒に送るために保持
+    // ✅ 確認用：userId表示
+    console.log("✅ LINE displayName:", displayName);
+    console.log("✅ LINE userId:", userId);
+    alert("確認用 userId: " + userId);
+
+    // フォーム送信時に参照する用
     window.userProfile = { displayName, userId };
 
-    // borrower に自動入力（名前が一致すれば）
+    // 自動で borrower に自分の名前が含まれていたら選択
     const borrowerSelect = document.getElementById("borrower");
     for (let option of borrowerSelect.options) {
       if (option.value.includes(displayName)) {
@@ -52,9 +51,7 @@ async function initLiff() {
   }
 }
 
-initLiff();
-
-// 送信処理
+// フォーム送信処理
 document.getElementById("loanForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -75,19 +72,23 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
 
   fetch(GAS_URL, {
     method: "POST",
-    mode: "no-cors",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(data)
+  })
+  .then(res => res.text())
+  .then(txt => {
+    alert("送信完了: " + txt);
+    document.getElementById("loanForm").reset();
+    if (liff.isInClient()) liff.closeWindow();
+  })
+  .catch(err => {
+    console.error("送信エラー:", err);
+    alert("送信中にエラーが発生しました");
   });
-
-  alert("送信されました。");
-
-  document.getElementById("loanForm").reset();
-
-  if (liff.isInClient()) {
-    liff.closeWindow();
-  }
 });
 
+// 起動時処理
+populateShops();
+initLiff();
