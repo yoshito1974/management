@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwr4f2s3LMaTOAxWs54BmXbPe62_M-eHMk0qWAUU-grjYA83AG9n-Fg5posjcv3n716/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwr4f2s3LMaTOAxWs54BmXbPe62_M-eHMk0qWAUU-grjYA83AG9n-Fg5posjcv3n716/exec"; // 最新のGAS URLに差し替え
 
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
@@ -27,3 +27,32 @@ function populateShops() {
 }
 
 populateShops();
+
+document.getElementById("loanForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const amountRaw = document.getElementById("amount").value;
+  const normalizedAmount = amountRaw.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248));
+
+  const data = {
+    date: document.getElementById("date").value,
+    name: document.getElementById("name").value,
+    lender: document.getElementById("lender").value,
+    borrower: document.getElementById("borrower").value,
+    category: document.getElementById("category").value,
+    item: document.getElementById("item").value,
+    amount: normalizedAmount
+  };
+
+  fetch(GAS_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  alert("送信されました。");
+  document.getElementById("loanForm").reset();
+});
