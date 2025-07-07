@@ -27,23 +27,7 @@
 </head>
 
 
-<script>
-  async function checkLiff() {
-    try {
-      await liff.init({ liffId: "2007681083-B3Z2RkAv" });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-      }
-      const profile = await liff.getProfile();
-      alert("✅ userId: " + profile.userId);
-    } catch (err) {
-      alert("❌ システムエラー: " + err.message);
-      console.error("詳細:", err);
-    }
-  }
-  checkLiff();
-</script>
+
 
 
 <body>
