@@ -19,41 +19,6 @@ function populateShops() {
   });
 }
 
-// LIFF初期化とユーザープロファイル取得（エラー表示付き）
-async function initLiff() {
-  try {
-    await liff.init({ liffId: "2007681083-B3Z2RkAv" });
-
-    if (!liff.isLoggedIn()) {
-      liff.login(); // 初回はここで戻る
-      return;
-    }
-
-    const profile = await liff.getProfile();
-    const displayName = profile.displayName;
-    const userId = profile.userId;
-
-    // ✅ 取得確認
-    console.log("✅ LINE userId:", userId);
-    alert("userId: " + userId); // ←一時的確認
-
-    window.userProfile = { displayName, userId };
-
-    // borrower に自動入力
-    const borrowerSelect = document.getElementById("borrower");
-    for (let option of borrowerSelect.options) {
-      if (option.value.includes(displayName)) {
-        borrowerSelect.value = option.value;
-        break;
-      }
-    }
-
-  } catch (err) {
-    console.error("❌ LIFF初期化エラー:", err);
-    alert("システムエラー: LIFFの初期化に失敗しました\n" + err.message);
-  }
-}
-
 // フォーム送信処理
 document.getElementById("loanForm").addEventListener("submit", async function (e) {
   e.preventDefault();
