@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwr4f2s3LMaTOAxWs54BmXbPe62_M-eHMk0qWAUU-grjYA83AG9n-Fg5posjcv3n716/exec";  // ←最新URLに差し替えてください
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwr4f2s3LMaTOAxWs54BmXbPe62_M-eHMk0qWAUU-grjYA83AG9n-Fg5posjcv3n716/exec"; // あなたの最新のGAS URLに置き換え
 
 const shops = [
   "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
@@ -9,7 +9,6 @@ const shops = [
   "X&C", "トラットリア ブリッコラ"
 ];
 
-// 店舗リストをセレクトボックスに反映
 function populateShops() {
   const lenderSelect = document.getElementById("lender");
   const borrowerSelect = document.getElementById("borrower");
@@ -26,34 +25,38 @@ function populateShops() {
     borrowerSelect.appendChild(option2);
   });
 }
-populateShops();
 
-// LIFF初期化
+populateShops();  // ← これを忘れると何も表示されません！
+
+// LIFF初期化とユーザー情報取得
 async function initLiff() {
-  await liff.init({ liffId: "2007681083-EwJbXNRI" }); // ←LIFF IDは正確なものに
+  await liff.init({ liffId: "2007681083-B3Z2RkAv" }); // あなたのLIFF IDに置き換え
+
   if (!liff.isLoggedIn()) {
     liff.login();
-  } else {
-    const profile = await liff.getProfile();
-    const displayName = profile.displayName;
-    const userId = profile.userId;
+    return;
+  }
 
-    // フォーム送信時に使えるようにグローバル変数に格納
-    window.userProfile = { displayName, userId };
+  const profile = await liff.getProfile();
+  const displayName = profile.displayName;
+  const userId = profile.userId;
 
-    // 借主をLINE表示名で自動入力（候補に一致する場合）
-    const borrowerSelect = document.getElementById("borrower");
-    for (let option of borrowerSelect.options) {
-      if (option.value.includes(displayName)) {
-        borrowerSelect.value = option.value;
-        break;
-      }
+  // フォーム送信時に一緒に送るために保持
+  window.userProfile = { displayName, userId };
+
+  // borrower に自動入力（名前が一致すれば）
+  const borrowerSelect = document.getElementById("borrower");
+  for (let option of borrowerSelect.options) {
+    if (option.value.includes(displayName)) {
+      borrowerSelect.value = option.value;
+      break;
     }
   }
 }
+
 initLiff();
 
-// フォーム送信処理
+// 送信処理
 document.getElementById("loanForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -82,6 +85,7 @@ document.getElementById("loanForm").addEventListener("submit", function (e) {
   });
 
   alert("送信されました。");
+
   document.getElementById("loanForm").reset();
 
   if (liff.isInClient()) {
