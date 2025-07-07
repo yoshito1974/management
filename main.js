@@ -30,7 +30,7 @@ populateShops();
 
 // LIFF初期化
 async function initLiff() {
-  await liff.init({ liffId: "2007681083-EwJbXNRl" }); // ★あなたのLIFF IDに置き換え。このままでOK。
+  await liff.init({ liffId: "2007701236-aWB8jOR7" }); // ★あなたのLIFF IDに置き換え。このままでOK。
   if (!liff.isLoggedIn()) {
     liff.login();
   } else {
