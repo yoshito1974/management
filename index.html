@@ -25,6 +25,27 @@
     }
   </style>
 </head>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  async function checkLiff() {
+    try {
+      await liff.init({ liffId: "2007681083-EwJbXNRI" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      const profile = await liff.getProfile();
+      alert("✅ userId: " + profile.userId);
+    } catch (err) {
+      alert("❌ システムエラー: " + err.message);
+      console.error("詳細:", err);
+    }
+  }
+  checkLiff();
+</script>
+
+
 <body>
   <h2>貸借管理フォーム</h2>
   <form id="loanForm">
