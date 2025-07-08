@@ -388,6 +388,10 @@
                 <span class="loading-spinner"></span>
                 データを読み込み中...
             </div>
+            <button id="debug-btn" class="retry-btn" style="display: none; margin-top: 10px;">
+                🐛 詳細デバッグ情報を表示
+            </button>
+            <div id="debug-info" style="display: none; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
         </div>
 
         <div class="search-section" id="search-section">
@@ -457,6 +461,17 @@
                 this.data = [];
                 this.searchResults = [];
                 this.statusDiv = document.getElementById('status-info');
+                
+                // main.jsと同じ店舗リストを使用
+                this.shops = [
+                    "MARUGO‑D", "MARUGO‑OTTO", "元祖どないや新宿三丁目", "鮨こるり",
+                    "MARUGO", "MARUGO2", "MARUGO GRANDE", "MARUGO MARUNOUCHI",
+                    "マルゴ新橋", "MARUGO YOTSUYA", "371BAR", "三三五五",
+                    "BAR PELOTA", "Claudia2", "BISTRO CAVA,CAVA", "eric'S",
+                    "MITAN", "焼肉マルゴ", "SOBA‑JU", "Bar Violet",
+                    "X&C", "トラットリア ブリッコラ"
+                ];
+                
                 this.init();
             }
 
@@ -465,6 +480,36 @@
                 this.setupEventListeners();
                 this.setDefaultDates();
                 await this.loadCSVData();
+            }
+
+            debugLog(message, data = null) {
+                const debugDiv = document.getElementById('debug-info');
+                const timestamp = new Date().toLocaleTimeString();
+                let logEntry = `[${timestamp}] ${message}`;
+                if (data) {
+                    logEntry += `\n${JSON.stringify(data, null, 2)}`;
+                }
+                
+                const logElement = document.createElement('div');
+                logElement.style.marginBottom = '10px';
+                logElement.style.paddingBottom = '10px';
+                logElement.style.borderBottom = '1px solid #e9ecef';
+                logElement.textContent = logEntry;
+                debugDiv.appendChild(logElement);
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+                
+                console.log(message, data);
+            }
+
+            showDebugInfo() {
+                const debugBtn = document.getElementById('debug-btn');
+                const debugInfo = document.getElementById('debug-info');
+                
+                debugBtn.style.display = 'block';
+                debugBtn.onclick = () => {
+                    debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+                    debugBtn.textContent = debugInfo.style.display === 'none' ? '🐛 詳細デバッグ情報を表示' : '🐛 デバッグ情報を非表示';
+                };
             }
 
             log(message, type = 'info') {
@@ -491,38 +536,40 @@
                 ];
 
                 this.log('CSVファイルを検索中...', 'loading');
+                this.showDebugInfo(); // デバッグボタンを表示
 
                 for (const path of csvPaths) {
                     try {
                         this.log(`試行中: ${path}`, 'loading');
+                        this.debugLog(`CSVファイルパス試行: ${path}`);
                         
                         const response = await fetch(path);
+                        this.debugLog(`レスポンス状態: ${response.status} ${response.statusText}`);
                         
                         if (response.ok) {
                             const csvData = await response.text();
                             this.log(`ファイル読み込み成功: ${path}`, 'success');
+                            this.debugLog(`読み込み成功: ${path} (${csvData.length}文字)`);
                             
                             await this.processCSVData(csvData);
                             this.populateStoreDropdown();
                             
-                            const stores = [...new Set([
-                                ...this.data.map(row => row.lender).filter(Boolean),
-                                ...this.data.map(row => row.borrower).filter(Boolean)
-                            ])];
-                            
-                            this.log(`データ読み込み完了！${this.data.length}件のレコード、${stores.length}店舗`, 'success');
+                            this.log(`データ読み込み完了！${this.data.length}件のレコード、${this.shops.length}店舗（固定リスト）`, 'success');
+                            this.debugLog('使用する店舗リスト（main.jsと同じ）', this.shops);
                             
                             // 検索セクションを表示
                             document.getElementById('search-section').style.display = 'block';
                             return;
                         }
                     } catch (error) {
+                        this.debugLog(`${path} で失敗`, error.message);
                         console.log(`${path} で失敗:`, error.message);
                     }
                 }
 
                 // すべてのパスで失敗した場合
                 this.log('CSVファイルが見つかりません', 'error');
+                this.debugLog('全CSVパスで読み込み失敗');
                 this.showRetryOption();
             }
 
@@ -539,6 +586,8 @@
 
             async processCSVData(csvData) {
                 this.log('データを解析中...', 'loading');
+                this.debugLog('CSVデータサイズ', `${csvData.length}文字`);
+                this.debugLog('CSVデータの最初の500文字', csvData.substring(0, 500));
 
                 const parsedData = Papa.parse(csvData, {
                     header: true,
@@ -548,10 +597,11 @@
                 });
 
                 if (parsedData.errors.length > 0) {
-                    console.warn('Parse warnings:', parsedData.errors);
+                    this.debugLog('Papa Parse エラー', parsedData.errors);
                 }
 
                 const fields = parsedData.meta?.fields || [];
+                this.debugLog('検出されたフィールド', fields);
                 
                 // フィールドマッピング
                 const getField = (aliases) => {
@@ -561,8 +611,12 @@
                             f.toLowerCase().includes(alias.toLowerCase()) || 
                             alias.toLowerCase().includes(f.toLowerCase())
                         );
-                        if (found) return found;
+                        if (found) {
+                            this.debugLog(`フィールドマッピング成功: ${aliases[0]} -> ${found}`);
+                            return found;
+                        }
                     }
+                    this.debugLog(`フィールドマッピング失敗: ${aliases[0]}`);
                     return null;
                 };
 
@@ -575,7 +629,13 @@
                 const amountKey = getField(['金額', 'amount']);
                 const inputDateKey = getField(['入力日時', 'inputDate']);
 
-                this.data = parsedData.data.map(row => {
+                this.debugLog('使用するフィールドマッピング', {
+                    dateKey, nameKey, lenderKey, borrowerKey, categoryKey, itemKey, amountKey, inputDateKey
+                });
+
+                this.debugLog('生データサンプル（最初の3行）', parsedData.data.slice(0, 3));
+
+                this.data = parsedData.data.map((row, index) => {
                     let extractedDate = '';
                     if (dateKey && row[dateKey]) {
                         extractedDate = this.extractDateFromDateTime(row[dateKey]);
@@ -583,7 +643,7 @@
                         extractedDate = this.extractDateFromDateTime(row[inputDateKey]);
                     }
 
-                    return {
+                    const processedRow = {
                         date: extractedDate,
                         name: (nameKey && row[nameKey]) ? row[nameKey] : '',
                         lender: (lenderKey && row[lenderKey]) ? row[lenderKey].trim() : '',
@@ -594,7 +654,46 @@
                         originalAmount: (amountKey && row[amountKey]) ? row[amountKey] : '',
                         inputDate: (inputDateKey && row[inputDateKey]) ? row[inputDateKey] : ''
                     };
-                }).filter(row => row.date && (row.lender || row.borrower));
+
+                    if (index < 5) {
+                        this.debugLog(`処理済みデータサンプル（行${index + 1}）`, processedRow);
+                    }
+
+                    return processedRow;
+                }).filter((row, index) => {
+                    const isValid = row.date && (row.lender || row.borrower);
+                    if (!isValid && index < 10) {
+                        this.debugLog(`無効行をフィルタ（行${index + 1}）`, row);
+                    }
+                    return isValid;
+                });
+
+                this.debugLog(`最終データ件数: ${this.data.length}件`);
+                
+                // 店舗名の一覧を抽出してログ出力
+                const allLenders = [...new Set(this.data.map(row => row.lender).filter(Boolean))].sort();
+                const allBorrowers = [...new Set(this.data.map(row => row.borrower).filter(Boolean))].sort();
+                const allStores = [...new Set([...allLenders, ...allBorrowers])].sort();
+                
+                this.debugLog('貸主一覧', allLenders);
+                this.debugLog('借主一覧', allBorrowers);
+                this.debugLog('全店舗一覧', allStores);
+                
+                // cavacava関連データの詳細確認
+                const cavaData = this.data.filter(row => 
+                    row.lender.toLowerCase().includes('cava') || 
+                    row.borrower.toLowerCase().includes('cava')
+                );
+                this.debugLog('cavacava関連データ', cavaData);
+
+                // 店舗別データ数
+                const storeStats = {};
+                this.data.forEach(row => {
+                    [row.lender, row.borrower].filter(Boolean).forEach(store => {
+                        storeStats[store] = (storeStats[store] || 0) + 1;
+                    });
+                });
+                this.debugLog('店舗別データ数', storeStats);
             }
 
             extractDateFromDateTime(dateTimeStr) {
@@ -640,21 +739,21 @@
             populateStoreDropdown() {
                 const storeSelect = document.getElementById('store-name');
                 
+                // 既存のオプションをクリア（最初のオプションは残す）
                 while (storeSelect.children.length > 1) {
                     storeSelect.removeChild(storeSelect.lastChild);
                 }
 
-                const allStores = [...new Set([
-                    ...this.data.map(row => row.lender).filter(Boolean),
-                    ...this.data.map(row => row.borrower).filter(Boolean)
-                ])].sort();
-
-                allStores.forEach(store => {
+                // main.jsと同じ店舗リストを使用
+                this.shops.forEach(store => {
                     const option = document.createElement('option');
                     option.value = store;
                     option.textContent = store;
                     storeSelect.appendChild(option);
                 });
+
+                this.debugLog('店舗プルダウン設定完了', this.shops);
+                this.log(`店舗プルダウン設定完了: ${this.shops.length}店舗`, 'success');
             }
 
             setupEventListeners() {
