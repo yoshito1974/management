@@ -65,7 +65,7 @@ async function initLiff() {
     console.log('LIFF初期化成功:', profile.displayName);
   } catch (error) {
     console.error('LIFF初期化エラー:', error);
-    
+
     // 具体的なエラーメッセージ
     if (error.code === 'INIT_FAILED') {
       console.error('LIFF ID が無効または設定に問題があります');
@@ -74,7 +74,7 @@ async function initLiff() {
     } else if (error.code === 'UNAUTHORIZED') {
       console.error('認証に失敗しました');
     }
-    
+
     // LIFF環境外でも動作するように継続
     console.log('LIFF無しで動作を継続します');
   }
@@ -114,13 +114,13 @@ function initializeElements() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     // バリデーション
     if (!categoryInput.value) {
       alert('カテゴリーを選択してください');
       return;
     }
-    
+
     // ローディング状態開始
     submitBtn.classList.add('loading');
     submitBtn.querySelector('.btn-text').textContent = '送信中...';
@@ -162,13 +162,13 @@ function initializeElements() {
         submitBtn.classList.remove('loading');
         submitBtn.querySelector('.btn-text').textContent = '📨 送信する';
         submitBtn.disabled = false;
-        
+
         // 成功メッセージ表示
         successMessage.classList.add('show');
         setTimeout(() => {
           successMessage.classList.remove('show');
         }, 3000);
-        
+
         // フォームリセット
         form.reset();
         categoryOptions.forEach(opt => opt.classList.remove('selected'));
@@ -188,12 +188,12 @@ function initializeElements() {
 
     } catch (error) {
       console.error('送信エラー:', error);
-      
+
       // エラー処理
       submitBtn.classList.remove('loading');
       submitBtn.querySelector('.btn-text').textContent = '📨 送信する';
       submitBtn.disabled = false;
-      
+
       alert('送信に失敗しました。再度お試しください。');
     }
   });
@@ -203,7 +203,7 @@ function initializeElements() {
 function initialize() {
   populateShops();
   initializeElements();
-  
+
   // LIFF初期化は非同期で実行
   initLiff().catch(error => {
     console.error('LIFF初期化で予期しないエラー:', error);
