@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -311,6 +312,28 @@
     .submit-btn.loading::before {
       display: none;
     }
+
+    .data-link-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .data-link-btn {
+      display: inline-block;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .data-link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(74, 85, 104, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -370,6 +393,9 @@
         <span class="btn-text">📨 送信する</span>
       </button>
     </form>
+    <div class="data-link-container">
+      <a href="data/index.html" class="data-link-btn">📊 データを見る</a>
+    </div>
   </div>
 
   <div class="success-message" id="successMessage">
