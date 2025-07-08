@@ -367,7 +367,7 @@
 
             async init() {
                 await this.loadData();
-                this.populateStoreDropdown();
+                this.populateStoreDropdown(); // データロード後にプルダウンを生成
                 this.setupEventListeners();
                 this.setDefaultDates();
             }
@@ -375,7 +375,9 @@
             async loadData() {
                 try {
                     // CSVファイルを読み込み
-                    [cite_start]const csvData = await window.fs.readFile('lending-records.csv', { encoding: 'utf8' }); [cite: 1]
+                    // window.fs.readFile は Electron などの環境でのみ動作します。
+                    // 通常のWebブラウザで動作させる場合は、Fetch API などでサーバーからCSVを読み込む必要があります。
+                    const csvData = await window.fs.readFile('lending-records.csv', { encoding: 'utf8' }); [cite: 1]
                     
                     const parsedData = Papa.parse(csvData, {
                         header: true,
@@ -397,19 +399,22 @@
 
                     console.log(`${this.data.length}件のデータを読み込みました`);
                 } catch (error) {
-                    // CSVファイルが見つからない、または読み込みに失敗した場合
+                    // CSVファイルが見つからない、または読み込みに失敗した場合の処理
                     console.error('CSVファイルの読み込みに失敗しました。システムを起動できません。', error);
                     alert('データファイルの読み込みに失敗しました。アプリケーションを再起動するか、データファイルが正しい場所にあるか確認してください。');
-                    // ここでロードエラーの表示など、ユーザーへのフィードバックを追加できます。
+                    // データが読み込めなかった場合、プルダウンや検索機能が動作しないことを考慮し、
+                    // 必要であればここでUIにエラーメッセージを表示するなどの処理を追加できます。
+                    this.data = []; // データがない状態にする
                 }
             }
 
             parseAmount(amountStr) {
                 if (!amountStr) return 0;
-                [cite_start]// カンマ、¥、円、スペース、引用符などを除去 [cite: 1]
-                [cite_start]const cleanAmount = amountStr.toString().replace(/[,¥円\s"']/g, ''); [cite: 1]
-                const parsed = parseInt(cleanAmount) || [cite_start]0; [cite: 1]
-                if (isNaN(parsed) || parsed.toString() !== cleanAmount) { 
+                // カンマ、¥、円、スペース、引用符などを除去
+                const cleanAmount = amountStr.toString().replace(/[,¥円\s"']/g, '');
+                const parsed = parseInt(cleanAmount) || 0;
+                // より厳密なチェック: 変換後の数値が元のクリーンな文字列と一致しない場合（例: "abc" -> 0）
+                if (isNaN(parsed) || cleanAmount !== parsed.toString()) { 
                     console.warn(`金額パースに問題: "${amountStr}" (クリーン後: "${cleanAmount}") → ${parsed}`);
                 }
                 return parsed;
@@ -417,42 +422,23 @@
 
             populateStoreDropdown() {
                 const storeSelect = document.getElementById('store-name');
-                
-                // 指定された店舗リスト
-                const storeList = [
-                    'MARUGO-D',
-                    'MARUGO-OTTO', 
-                    '元祖どないや新宿三丁目',
-                    '鮨こるり',
-                    'MARUGO',
-                    'MARUGO2',
-                    'MARUGO GRANDE',
-                    'MARUGO MARUNOUCHI',
-                    'マルゴ新橋',
-                    'MARUGO YOTSUYA',
-                    '371BAR',
-                    '三三五五',
-                    'BAR PELOTA',
-                    'Claudia2',
-                    'BISTRO CAVA,CAVA',
-                    'eric\'S',
-                    'MITAN',
-                    '焼肉マルゴ',
-                    'SOBA-JU',
-                    'Bar Violet',
-                    'X&C',
-                    'トラットリア ブリッコラ'
-                ];
-                
-                // プルダウンに追加
-                storeList.forEach(store => {
+                storeSelect.innerHTML = '<option value="">店舗を選択してください</option>'; // 既存のオプションをクリア
+
+                const uniqueStores = new Set();
+                this.data.forEach(row => {
+                    if (row.lender) uniqueStores.add(row.lender.trim());
+                    if (row.borrower) uniqueStores.add(row.borrower.trim());
+                });
+
+                // ソートしてプルダウンに追加
+                Array.from(uniqueStores).sort().forEach(store => {
                     const option = document.createElement('option');
                     option.value = store;
                     option.textContent = store;
                     storeSelect.appendChild(option);
                 });
                 
-                console.log(`${storeList.length}店舗をプルダウンに追加しました`);
+                console.log(`${uniqueStores.size}店舗をプルダウンに追加しました (CSVデータから動的に取得)`);
             }
 
             setDefaultDates() {
@@ -502,6 +488,8 @@
             filterData(startDate, endDate, storeName) {
                 const start = new Date(startDate);
                 const end = new Date(endDate);
+                // 終了日をその日の終わり（23:59:59.999）に設定して、終了日当日のデータも含むようにする
+                end.setHours(23, 59, 59, 999);
                 
                 console.log(`フィルタリング開始: ${storeName}`);
                 console.log(`期間: ${start.toDateString()} ～ ${end.toDateString()}`);
@@ -510,13 +498,12 @@
                     // 日付フィルター
                     const rowDate = new Date(row.date);
                     if (isNaN(rowDate.getTime())) {
-                        console.warn(`無効な日付: ${row.date}`);
+                        // console.warn(`無効な日付: ${row.date}`); // デバッグ用
                         return false;
                     }
                     if (rowDate < start || rowDate > end) return false;
                     
-                    // 店舗名フィルター（完全一致）
-                    // trim() を追加して空白文字によるマッチング失敗を防ぐ
+                    // 店舗名フィルター（厳密なトリミングと一致）
                     const trimmedStoreName = storeName.trim();
                     const isLender = row.lender.trim() === trimmedStoreName;
                     const isBorrower = row.borrower.trim() === trimmedStoreName;
@@ -563,7 +550,6 @@
                 let lendingCount = 0;
                 let borrowingCount = 0;
 
-                console.log('=== 集計開始 ===');
                 this.searchResults.forEach(row => {
                     if (row.transactionType === '貸出') {
                         totalLending += row.amount;
@@ -576,12 +562,6 @@
 
                 const netAmount = totalLending - totalBorrowing;
                 const totalTransactions = this.searchResults.length;
-
-                console.log('=== 最終集計結果 ===');
-                console.log(`貸出合計: ¥${totalLending.toLocaleString()} (${lendingCount}件)`);
-                console.log(`借入合計: ¥${totalBorrowing.toLocaleString()} (${borrowingCount}件)`);
-                console.log(`差額: ¥${netAmount.toLocaleString()}`);
-                console.log(`総取引数: ${totalTransactions}件`);
 
                 let netClass = 'neutral';
                 let netIcon = '⚖️';
