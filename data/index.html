@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店舗別貸借検索システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            height: fit-content;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card.positive {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+        
+        .summary-card.negative {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        }
+        
+        .summary-card.neutral {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+        }
+        
+        .details-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .details-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .details-header h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        
+        .details-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th {
+            background: #f8fafc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .amount {
+            text-align: right;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .amount.positive {
+            color: #22c55e;
+        }
+        
+        .amount.negative {
+            color: #ef4444;
+        }
+        
+        .type-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .type-貸出 {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .type-借入 {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .export-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>店舗別貸借検索システム</h1>
+            <p>年月日と店舗名で貸借データを検索・分析</p>
+        </div>
+        
+        <div class="search-section">
+            <form class="search-form" id="search-form">
+                <div class="form-group">
+                    <label for="start-date">開始日</label>
+                    <input type="date" id="start-date" name="startDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end-date">終了日</label>
+                    <input type="date" id="end-date" name="endDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="store-name">店舗名</label>
+                    <select id="store-name" name="storeName" required>
+                        <option value="">店舗を選択してください</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="search-btn">🔍 検索実行</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="results-section" id="results-section">
+            <div class="summary-cards" id="summary-cards">
+                <!-- サマリーカードがここに動的生成されます -->
+            </div>
+            
+            <div class="details-section">
+                <div class="details-header">
+                    <h3 id="details-title">取引詳細</h3>
+                    <p id="details-subtitle">期間内の全取引データ</p>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>日付</th>
+                                <th>取引種別</th>
+                                <th>相手方</th>
+                                <th>品目</th>
+                                <th>カテゴリー</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody id="details-table">
+                            <!-- データがここに動的生成されます -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <button class="export-btn" id="export-btn">📊 結果をCSV出力</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        class StoreSearchSystem {
+            constructor() {
+                this.data = [];
+                this.searchResults = [];
+                this.init();
+            }
+
+            async init() {
+                await this.loadData();
+                this.populateStoreDropdown();
+                this.setupEventListeners();
+                this.setDefaultDates();
+            }
+
+            async loadData() {
+                try {
+                    // 新しいCSVファイルを読み込み
+                    const csvData = await window.fs.readFile('貸借管理表  貸借記録.csv', { encoding: 'utf8' });
+                    
+                    const parsedData = Papa.parse(csvData, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: false
+                    });
+
+                    this.data = parsedData.data.map(row => ({
+                        date: row['›'] || '',
+                        name: row['名前'] || '',
+                        lender: row['貸主'] || '',
+                        borrower: row['借主'] || '',
+                        category: row['カテゴリー'] || '',
+                        item: row['品目'] || '',
+                        amount: this.parseAmount(row['金額']),
+                        originalAmount: row['金額'] || '',
+                        inputDate: row['入力日時'] || ''
+                    })).filter(row => row.date && (row.lender || row.borrower));
+
+                    console.log(`${this.data.length}件のデータを読み込みました`);
+                } catch (error) {
+                    console.warn('CSVファイルが見つかりません。サンプルデータを使用します。');
+                    // CSVファイルがない場合はサンプルデータを使用
+                    this.loadSampleData();
+                }
+            }
+
+            loadSampleData() {
+                // デモ用サンプルデータ（実際のCSVデータに基づく）
+                this.data = [
+                    {
+                        date: '2025-07-28',
+                        name: '板川与志人',
+                        lender: 'Claudia2',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '食材',
+                        item: '和牛ミスジ',
+                        amount: 12500,
+                        originalAmount: '12,500',
+                        inputDate: '2025/07/09 2:02:36'
+                    },
+                    {
+                        date: '2025-07-04',
+                        name: '板川',
+                        lender: 'SOBA‑JU',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '食材',
+                        item: '麺つゆ',
+                        amount: 1780,
+                        originalAmount: '1,780',
+                        inputDate: '2025/07/08 17:36:32'
+                    },
+                    {
+                        date: '2025-07-14',
+                        name: '板川',
+                        lender: 'Claudia2',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '食材',
+                        item: '穴子',
+                        amount: 7800,
+                        originalAmount: '7,800',
+                        inputDate: '2025/07/08 5:52:11'
+                    },
+                    {
+                        date: '2025-07-12',
+                        name: '板川',
+                        lender: 'MARUGO YOTSUYA',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '食材',
+                        item: 'チーズ一式',
+                        amount: 18750,
+                        originalAmount: '18,750',
+                        inputDate: '2025/07/07 20:25:20'
+                    },
+                    {
+                        date: '2025-07-15',
+                        name: '板川',
+                        lender: 'BISTRO CAVA,CAVA',
+                        borrower: 'eric\'S',
+                        category: '食材',
+                        item: 'テリーヌ',
+                        amount: 6456,
+                        originalAmount: '6,456',
+                        inputDate: '2025/07/07 20:24:31'
+                    },
+                    {
+                        date: '2025-07-16',
+                        name: '板川',
+                        lender: 'MARUGO‑OTTO',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '食材',
+                        item: '生ハム',
+                        amount: 45809,
+                        originalAmount: '45,809',
+                        inputDate: '2025/07/05 11:45'
+                    },
+                    {
+                        date: '2025-07-18',
+                        name: '板川',
+                        lender: 'BISTRO CAVA,CAVA',
+                        borrower: 'マルゴ新橋',
+                        category: '食材',
+                        item: '鶏ひき肉',
+                        amount: 1800,
+                        originalAmount: '1,800',
+                        inputDate: '2025/07/06 13:10'
+                    },
+                    {
+                        date: '2025-07-11',
+                        name: '板川',
+                        lender: 'BISTRO CAVA,CAVA',
+                        borrower: 'MARUGO‑D',
+                        category: '食材',
+                        item: '牛頬肉',
+                        amount: 5600,
+                        originalAmount: '5,600',
+                        inputDate: '2025/07/07 15:30'
+                    },
+                    {
+                        date: '2025-07-05',
+                        name: '板川',
+                        lender: 'MARUGO GRANDE',
+                        borrower: 'BISTRO CAVA,CAVA',
+                        category: '飲料',
+                        item: 'ムルソー',
+                        amount: 25000,
+                        originalAmount: '25,000',
+                        inputDate: '2025/07/07 15:30'
+                    },
+                    {
+                        date: '2025-07-04',
+                        name: '板川',
+                        lender: 'BISTRO CAVA,CAVA',
+                        borrower: '371BAR',
+                        category: '食材',
+                        item: 'パン',
+                        amount: 1200,
+                        originalAmount: '1,200',
+                        inputDate: '2025/07/07 15:30'
+                    },
+                    {
+                        date: '2025-07-08',
+                        name: '板川',
+                        lender: 'BISTRO CAVA,CAVA',
+                        borrower: 'MARUGO',
+                        category: '食材',
+                        item: '鶏肉',
+                        amount: 25000,
+                        originalAmount: '25,000',
+                        inputDate: '2025/07/07 15:30'
+                    }
+                ];
+                
+                console.log(`実際のCAVA,CAVAデータに基づくサンプルデータ ${this.data.length}件を読み込みました`);
+            }
+
+            parseAmount(amountStr) {
+                if (!amountStr) return 0;
+                const cleanAmount = amountStr.toString().replace(/[,¥円\s"']/g, '');
+                const parsed = parseInt(cleanAmount) || 0;
+                if (parsed !== parseInt(cleanAmount)) {
+                    console.warn(`金額パースに問題: "${amountStr}" → ${parsed}`);
+                }
+                return parsed;
+            }
+
+            populateStoreDropdown() {
+                const storeSelect = document.getElementById('store-name');
+                
+                // 指定された店舗リスト
+                const storeList = [
+                    'MARUGO-D',
+                    'MARUGO-OTTO', 
+                    '元祖どないや新宿三丁目',
+                    '鮨こるり',
+                    'MARUGO',
+                    'MARUGO2',
+                    'MARUGO GRANDE',
+                    'MARUGO MARUNOUCHI',
+                    'マルゴ新橋',
+                    'MARUGO YOTSUYA',
+                    '371BAR',
+                    '三三五五',
+                    'BAR PELOTA',
+                    'Claudia2',
+                    'BISTRO CAVA,CAVA',
+                    'eric\'S',
+                    'MITAN',
+                    '焼肉マルゴ',
+                    'SOBA-JU',
+                    'Bar Violet',
+                    'X&C',
+                    'トラットリア ブリッコラ'
+                ];
+                
+                // プルダウンに追加
+                storeList.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store;
+                    option.textContent = store;
+                    storeSelect.appendChild(option);
+                });
+                
+                console.log(`${storeList.length}店舗をプルダウンに追加しました`);
+            }
+
+            setDefaultDates() {
+                const today = new Date();
+                const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+                
+                document.getElementById('start-date').value = oneMonthAgo.toISOString().split('T')[0];
+                document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            }
+
+            setupEventListeners() {
+                const searchForm = document.getElementById('search-form');
+                const exportBtn = document.getElementById('export-btn');
+
+                searchForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.performSearch();
+                });
+
+                exportBtn.addEventListener('click', () => {
+                    this.exportResults();
+                });
+            }
+
+            performSearch() {
+                const formData = new FormData(document.getElementById('search-form'));
+                const startDate = formData.get('startDate');
+                const endDate = formData.get('endDate');
+                const storeName = formData.get('storeName').trim();
+
+                if (!startDate || !endDate || !storeName) {
+                    alert('すべての項目を入力してください');
+                    return;
+                }
+
+                console.log(`検索条件: ${startDate} ～ ${endDate}, 店舗: ${storeName}`);
+                this.showLoading();
+
+                // 検索実行
+                setTimeout(() => {
+                    this.searchResults = this.filterData(startDate, endDate, storeName);
+                    console.log(`検索結果: ${this.searchResults.length}件`);
+                    this.displayResults(startDate, endDate, storeName);
+                }, 500);
+            }
+
+            filterData(startDate, endDate, storeName) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                
+                console.log(`フィルタリング開始: ${storeName}`);
+                console.log(`期間: ${start.toDateString()} ～ ${end.toDateString()}`);
+                
+                const filtered = this.data.filter(row => {
+                    // 日付フィルター
+                    const rowDate = new Date(row.date);
+                    if (isNaN(rowDate.getTime())) {
+                        console.warn(`無効な日付: ${row.date}`);
+                        return false;
+                    }
+                    if (rowDate < start || rowDate > end) return false;
+                    
+                    // 店舗名フィルター（完全一致）
+                    const isLender = row.lender === storeName;
+                    const isBorrower = row.borrower === storeName;
+                    
+                    if (isLender || isBorrower) {
+                        console.log(`マッチ: ${row.date} - ${isLender ? '貸出' : '借入'} - ${row.item} - ¥${row.amount.toLocaleString()}`);
+                    }
+                    
+                    return isLender || isBorrower;
+                }).map(row => {
+                    // 取引種別を追加
+                    const isLender = row.lender === storeName;
+                    return {
+                        ...row,
+                        transactionType: isLender ? '貸出' : '借入',
+                        counterparty: isLender ? row.borrower : row.lender
+                    };
+                });
+                
+                console.log(`フィルタリング結果: ${filtered.length}件`);
+                return filtered;
+            }
+
+            showLoading() {
+                const resultsSection = document.getElementById('results-section');
+                const detailsTable = document.getElementById('details-table');
+                
+                resultsSection.style.display = 'block';
+                detailsTable.innerHTML = '<tr><td colspan="6" class="loading">検索中...</td></tr>';
+            }
+
+            displayResults(startDate, endDate, storeName) {
+                if (this.searchResults.length === 0) {
+                    this.showNoResults();
+                    return;
+                }
+
+                this.renderSummary(storeName);
+                this.renderDetails(startDate, endDate, storeName);
+            }
+
+            renderSummary(storeName) {
+                const summaryCards = document.getElementById('summary-cards');
+                
+                // 貸出・借入の集計
+                let totalLending = 0;
+                let totalBorrowing = 0;
+                let lendingCount = 0;
+                let borrowingCount = 0;
+
+                console.log('=== 集計開始 ===');
+                this.searchResults.forEach(row => {
+                    console.log(`処理中: ${row.date} - ${row.transactionType} - ${row.item} - ¥${row.amount.toLocaleString()}`);
+                    
+                    if (row.transactionType === '貸出') {
+                        totalLending += row.amount;
+                        lendingCount++;
+                        console.log(`貸出追加: ¥${row.amount.toLocaleString()}, 累計: ¥${totalLending.toLocaleString()}`);
+                    } else if (row.transactionType === '借入') {
+                        totalBorrowing += row.amount;
+                        borrowingCount++;
+                        console.log(`借入追加: ¥${row.amount.toLocaleString()}, 累計: ¥${totalBorrowing.toLocaleString()}`);
+                    }
+                });
+
+                const netAmount = totalLending - totalBorrowing;
+                const totalTransactions = this.searchResults.length;
+
+                console.log('=== 最終集計結果 ===');
+                console.log(`貸出合計: ¥${totalLending.toLocaleString()} (${lendingCount}件)`);
+                console.log(`借入合計: ¥${totalBorrowing.toLocaleString()} (${borrowingCount}件)`);
+                console.log(`差額: ¥${netAmount.toLocaleString()}`);
+                console.log(`総取引数: ${totalTransactions}件`);
+
+                let netClass = 'neutral';
+                let netIcon = '⚖️';
+                if (netAmount > 0) {
+                    netClass = 'positive';
+                    netIcon = '📈';
+                } else if (netAmount < 0) {
+                    netClass = 'negative';
+                    netIcon = '📉';
+                }
+
+                summaryCards.innerHTML = `
+                    <div class="summary-card">
+                        <h3>💰 貸出合計</h3>
+                        <div class="value">¥${totalLending.toLocaleString()}</div>
+                        <small>${lendingCount}件</small>
+                    </div>
+                    <div class="summary-card negative">
+                        <h3>🏪 借入合計</h3>
+                        <div class="value">¥${totalBorrowing.toLocaleString()}</div>
+                        <small>${borrowingCount}件</small>
+                    </div>
+                    <div class="summary-card ${netClass}">
+                        <h3>${netIcon} 差額</h3>
+                        <div class="value">¥${netAmount.toLocaleString()}</div>
+                        <small>貸出 - 借入</small>
+                    </div>
+                    <div class="summary-card">
+                        <h3>📊 取引件数</h3>
+                        <div class="value">${totalTransactions}</div>
+                        <small>合計取引</small>
+                    </div>
+                `;
+            }
+
+            renderDetails(startDate, endDate, storeName) {
+                const detailsTitle = document.getElementById('details-title');
+                const detailsSubtitle = document.getElementById('details-subtitle');
+                const detailsTable = document.getElementById('details-table');
+
+                detailsTitle.textContent = `${storeName} の取引詳細`;
+                detailsSubtitle.textContent = `${startDate} ～ ${endDate} の期間`;
+
+                detailsTable.innerHTML = this.searchResults.map(row => `
+                    <tr>
+                        <td>${row.date}</td>
+                        <td><span class="type-tag type-${row.transactionType}">${row.transactionType}</span></td>
+                        <td>${row.counterparty}</td>
+                        <td>${row.item}</td>
+                        <td>${row.category}</td>
+                        <td class="amount ${row.transactionType === '貸出' ? 'positive' : 'negative'}">
+                            ¥${row.amount.toLocaleString()}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            showNoResults() {
+                const summaryCards = document.getElementById('summary-cards');
+                const detailsTable = document.getElementById('details-table');
+                
+                summaryCards.innerHTML = `
+                    <div class="summary-card neutral">
+                        <h3>🔍 検索結果</h3>
+                        <div class="value">0件</div>
+                        <small>該当データなし</small>
+                    </div>
+                `;
+                
+                detailsTable.innerHTML = '<tr><td colspan="6" class="no-results">検索条件に一致するデータが見つかりませんでした</td></tr>';
+            }
+
+            exportResults() {
+                if (this.searchResults.length === 0) {
+                    alert('エクスポートするデータがありません');
+                    return;
+                }
+
+                const headers = ['日付', '取引種別', '相手方', '品目', 'カテゴリー', '金額'];
+                const csvContent = [
+                    headers.join(','),
+                    ...this.searchResults.map(row => [
+                        `"${row.date}"`,
+                        `"${row.transactionType}"`,
+                        `"${row.counterparty}"`,
+                        `"${row.item}"`,
+                        `"${row.category}"`,
+                        row.amount
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `店舗別貸借検索結果_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // アプリケーション初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            new StoreSearchSystem();
+        });
+    </script>
+</body>
+</html>
