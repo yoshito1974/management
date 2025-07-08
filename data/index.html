@@ -324,8 +324,7 @@
         
         <div class="results-section" id="results-section">
             <div class="summary-cards" id="summary-cards">
-                <!-- サマリーカードがここに動的生成されます -->
-            </div>
+                </div>
             
             <div class="details-section">
                 <div class="details-header">
@@ -346,8 +345,7 @@
                             </tr>
                         </thead>
                         <tbody id="details-table">
-                            <!-- データがここに動的生成されます -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -376,8 +374,8 @@
 
             async loadData() {
                 try {
-                    // 新しいCSVファイルを読み込み
-                    const csvData = await window.fs.readFile('貸借管理表  貸借記録.csv', { encoding: 'utf8' });
+                    // CSVファイルを読み込み
+                    [cite_start]const csvData = await window.fs.readFile('lending-records.csv', { encoding: 'utf8' }); [cite: 1]
                     
                     const parsedData = Papa.parse(csvData, {
                         header: true,
@@ -399,147 +397,20 @@
 
                     console.log(`${this.data.length}件のデータを読み込みました`);
                 } catch (error) {
-                    console.warn('CSVファイルが見つかりません。サンプルデータを使用します。');
-                    // CSVファイルがない場合はサンプルデータを使用
-                    this.loadSampleData();
+                    // CSVファイルが見つからない、または読み込みに失敗した場合
+                    console.error('CSVファイルの読み込みに失敗しました。システムを起動できません。', error);
+                    alert('データファイルの読み込みに失敗しました。アプリケーションを再起動するか、データファイルが正しい場所にあるか確認してください。');
+                    // ここでロードエラーの表示など、ユーザーへのフィードバックを追加できます。
                 }
-            }
-
-            loadSampleData() {
-                // デモ用サンプルデータ（実際のCSVデータに基づく）
-                this.data = [
-                    {
-                        date: '2025-07-28',
-                        name: '板川与志人',
-                        lender: 'Claudia2',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '食材',
-                        item: '和牛ミスジ',
-                        amount: 12500,
-                        originalAmount: '12,500',
-                        inputDate: '2025/07/09 2:02:36'
-                    },
-                    {
-                        date: '2025-07-04',
-                        name: '板川',
-                        lender: 'SOBA‑JU',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '食材',
-                        item: '麺つゆ',
-                        amount: 1780,
-                        originalAmount: '1,780',
-                        inputDate: '2025/07/08 17:36:32'
-                    },
-                    {
-                        date: '2025-07-14',
-                        name: '板川',
-                        lender: 'Claudia2',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '食材',
-                        item: '穴子',
-                        amount: 7800,
-                        originalAmount: '7,800',
-                        inputDate: '2025/07/08 5:52:11'
-                    },
-                    {
-                        date: '2025-07-12',
-                        name: '板川',
-                        lender: 'MARUGO YOTSUYA',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '食材',
-                        item: 'チーズ一式',
-                        amount: 18750,
-                        originalAmount: '18,750',
-                        inputDate: '2025/07/07 20:25:20'
-                    },
-                    {
-                        date: '2025-07-15',
-                        name: '板川',
-                        lender: 'BISTRO CAVA,CAVA',
-                        borrower: 'eric\'S',
-                        category: '食材',
-                        item: 'テリーヌ',
-                        amount: 6456,
-                        originalAmount: '6,456',
-                        inputDate: '2025/07/07 20:24:31'
-                    },
-                    {
-                        date: '2025-07-16',
-                        name: '板川',
-                        lender: 'MARUGO‑OTTO',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '食材',
-                        item: '生ハム',
-                        amount: 45809,
-                        originalAmount: '45,809',
-                        inputDate: '2025/07/05 11:45'
-                    },
-                    {
-                        date: '2025-07-18',
-                        name: '板川',
-                        lender: 'BISTRO CAVA,CAVA',
-                        borrower: 'マルゴ新橋',
-                        category: '食材',
-                        item: '鶏ひき肉',
-                        amount: 1800,
-                        originalAmount: '1,800',
-                        inputDate: '2025/07/06 13:10'
-                    },
-                    {
-                        date: '2025-07-11',
-                        name: '板川',
-                        lender: 'BISTRO CAVA,CAVA',
-                        borrower: 'MARUGO‑D',
-                        category: '食材',
-                        item: '牛頬肉',
-                        amount: 5600,
-                        originalAmount: '5,600',
-                        inputDate: '2025/07/07 15:30'
-                    },
-                    {
-                        date: '2025-07-05',
-                        name: '板川',
-                        lender: 'MARUGO GRANDE',
-                        borrower: 'BISTRO CAVA,CAVA',
-                        category: '飲料',
-                        item: 'ムルソー',
-                        amount: 25000,
-                        originalAmount: '25,000',
-                        inputDate: '2025/07/07 15:30'
-                    },
-                    {
-                        date: '2025-07-04',
-                        name: '板川',
-                        lender: 'BISTRO CAVA,CAVA',
-                        borrower: '371BAR',
-                        category: '食材',
-                        item: 'パン',
-                        amount: 1200,
-                        originalAmount: '1,200',
-                        inputDate: '2025/07/07 15:30'
-                    },
-                    {
-                        date: '2025-07-08',
-                        name: '板川',
-                        lender: 'BISTRO CAVA,CAVA',
-                        borrower: 'MARUGO',
-                        category: '食材',
-                        item: '鶏肉',
-                        amount: 25000,
-                        originalAmount: '25,000',
-                        inputDate: '2025/07/07 15:30'
-                    }
-                ];
-                
-                console.log(`実際のCAVA,CAVAデータに基づくサンプルデータ ${this.data.length}件を読み込みました`);
             }
 
             parseAmount(amountStr) {
                 if (!amountStr) return 0;
-                const cleanAmount = amountStr.toString().replace(/[,¥円\s"']/g, '');
-                const parsed = parseInt(cleanAmount) || 0;
-                if (parsed !== parseInt(cleanAmount)) {
-                    console.warn(`金額パースに問題: "${amountStr}" → ${parsed}`);
+                [cite_start]// カンマ、¥、円、スペース、引用符などを除去 [cite: 1]
+                [cite_start]const cleanAmount = amountStr.toString().replace(/[,¥円\s"']/g, ''); [cite: 1]
+                const parsed = parseInt(cleanAmount) || [cite_start]0; [cite: 1]
+                if (isNaN(parsed) || parsed.toString() !== cleanAmount) { 
+                    console.warn(`金額パースに問題: "${amountStr}" (クリーン後: "${cleanAmount}") → ${parsed}`);
                 }
                 return parsed;
             }
@@ -645,17 +516,15 @@
                     if (rowDate < start || rowDate > end) return false;
                     
                     // 店舗名フィルター（完全一致）
-                    const isLender = row.lender === storeName;
-                    const isBorrower = row.borrower === storeName;
-                    
-                    if (isLender || isBorrower) {
-                        console.log(`マッチ: ${row.date} - ${isLender ? '貸出' : '借入'} - ${row.item} - ¥${row.amount.toLocaleString()}`);
-                    }
+                    // trim() を追加して空白文字によるマッチング失敗を防ぐ
+                    const trimmedStoreName = storeName.trim();
+                    const isLender = row.lender.trim() === trimmedStoreName;
+                    const isBorrower = row.borrower.trim() === trimmedStoreName;
                     
                     return isLender || isBorrower;
                 }).map(row => {
                     // 取引種別を追加
-                    const isLender = row.lender === storeName;
+                    const isLender = row.lender.trim() === storeName.trim();
                     return {
                         ...row,
                         transactionType: isLender ? '貸出' : '借入',
@@ -696,16 +565,12 @@
 
                 console.log('=== 集計開始 ===');
                 this.searchResults.forEach(row => {
-                    console.log(`処理中: ${row.date} - ${row.transactionType} - ${row.item} - ¥${row.amount.toLocaleString()}`);
-                    
                     if (row.transactionType === '貸出') {
                         totalLending += row.amount;
                         lendingCount++;
-                        console.log(`貸出追加: ¥${row.amount.toLocaleString()}, 累計: ¥${totalLending.toLocaleString()}`);
                     } else if (row.transactionType === '借入') {
                         totalBorrowing += row.amount;
                         borrowingCount++;
-                        console.log(`借入追加: ¥${row.amount.toLocaleString()}, 累計: ¥${totalBorrowing.toLocaleString()}`);
                     }
                 });
 
