@@ -1,9 +1,13 @@
- <!DOCTYPE html>
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-@@ -11,324 +11,8 @@
+  <title>貸借管理フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * {
+      margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
@@ -325,12 +329,23 @@
       transition: all 0.3s ease;
     }
 
-    /* ここからCSSが続きます（省略無し） */
-    ...
     .data-link-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 25px rgba(74, 85, 104, 0.4);
-@@ -349,58 +33,22 @@
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <div class="container">
+    <h2>💰 貸借管理</h2>
+    <form id="loanForm">
+      <div class="form-group">
         <label for="date">📅 日付</label>
         <input type="date" id="date" required>
       </div>
@@ -372,15 +387,13 @@
         </div>
       </div>
 
-      <!-- 以下フォームが続きます -->
-      ...
       <button type="submit" class="submit-btn">
         <span class="loading"></span>
         <span class="btn-text">📨 送信する</span>
       </button>
     </form>
     <div class="data-link-container">
-      <a href="data/index.html" class="data-link-btn">📊 データを見る</a>
+      <a href="https://marugo-management.github.io/management/data/index.html" class="data-link-btn">📊 データを見る</a>
     </div>
   </div>
 
@@ -390,5 +403,4 @@
 
   <script src="main.js"></script>
 </body>
-</html>
 </html>
